@@ -87,7 +87,7 @@
                 "Unemployment": "green",
                 "voteShare": "black"
             };
-            const width = 300, height = 300, margin = { top: 40, right: 10, bottom: 50, left: 10 };
+            const width = 400, height = 300, margin = { top: 40, right: 5, bottom: 50, left: 5 };
             const container = d3.select("#charts");
             const tooltip = d3.select("#tooltip");
 
@@ -162,7 +162,7 @@
             });
 
             const mlFactors = ["Inflation", "GDPGrowth", "Unemployment", "voteShare"];
-            const mlWidth = 800, mlHeight = 400, mlMargin = { top: 40, right: 10, bottom: 50, left: 10 };
+            const mlWidth = 1000, mlHeight = 400, mlMargin = { top: 40, right: 10, bottom: 50, left: 10 };
 
             // First, determine the exact range of years in the data that have valid values
             const validYears = [];
