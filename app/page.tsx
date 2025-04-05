@@ -35,7 +35,7 @@ const visualizations = [
     id: "5",
     title: "Economic Factors",
     description: "",
-    url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    url: "/d3-dashboard/index.html", // Replace with actual URL
   },
 ]
 

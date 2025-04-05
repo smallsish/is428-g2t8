@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D3 Dashboard</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        svg {
+            border: 1px solid black;
+            margin: 10px;
+        }
+        .dot {
+            transition: all 0.2s;
+        }
+        .dot:hover {
+            stroke: red;
+            stroke-width: 2px;
+            r: 8;
+        }
+        .tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid black;
+            padding: 5px;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .trend-line {
+            stroke: black;
+            stroke-width: 2;
+            fill: none;
+        }
+        .parallel-line {
+            fill: none;
+            stroke: steelblue;
+            stroke-opacity: 0.5;
+            stroke-width: 3;
+        }
+        .highlight { stroke: red; stroke-width: 2px; }
+        .dimmed { opacity: 0.3; }
+        .vertical-line { stroke: grey; stroke-width: 2px; stroke-dasharray: 4 2; }
+        .selected { r: 8; stroke: black; stroke-width: 2px; }
+        .highlight-line { stroke: red; stroke-width: 3px; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Effect of Economic Factors on Election Results</h1>
+    <div><div class='tableauPlaceholder' id='viz1743867506019' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;As&#47;AssignmentSubmission_17438674912860&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='AssignmentSubmission_17438674912860&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;As&#47;AssignmentSubmission_17438674912860&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1743867506019');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1000px';vizElement.style.height='827px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1000px';vizElement.style.height='827px';} else { vizElement.style.width='100%';vizElement.style.height='1777px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script></div>
+    <label for="year-select">Select Election Year:</label>
+    <select id="year-select"></select>
+    <div class="chart-container" id="charts"></div>
+    <div class="tooltip" id="tooltip"></div>
+    <div class="chart-container">
+        <!-- <div id="slope-chart"></div> -->
+        <div id="multi-line-chart"></div>
+    </div>
+    <script>
+        d3.csv("voteshare_allthree.csv").then(function(data) {
+            data.forEach(d => {
+                d.voteShare = +d["voteShare"];
+                d.Inflation = d["Total Inflation Rate Over Previous 2 Years (%)"] !== "" ? +d["Total Inflation Rate Over Previous 2 Years (%)"] : null;
+                d.GDPGrowth = d["Total GDP Growth Over Previous 2 Years (%)"] !== "" ? +d["Total GDP Growth Over Previous 2 Years (%)"] : null;
+                d.Unemployment = d["Total Unemployment Rate Over Previous 2 Years (%)"] !== "" ? +d["Total Unemployment Rate Over Previous 2 Years (%)"] : null;
+                d.year = d["year"];
+            });
+
+            const years = ["None", ...new Set(data.map(d => d.year))].sort((a, b) => {
+                if (a === "None") return -1; // "None" comes first
+                if (b === "None") return 1;  // "None" comes first
+                return a - b; // Normal sorting for numeric years
+            });
+            const yearSelect = d3.select("#year-select");
+            yearSelect.selectAll("option")
+                .data(years)
+                .enter().append("option")
+                .text(d => d)
+                .attr("value", d => d);
+            const factors = ["Inflation", "GDPGrowth", "Unemployment"];
+            const factorColors = {
+                "Inflation": "purple",
+                "GDPGrowth": "orange",
+                "Unemployment": "green",
+                "voteShare": "black"
+            };
+            const width = 400, height = 300, margin = { top: 40, right: 10, bottom: 50, left: 10 };
+            const container = d3.select("#charts");
+            const tooltip = d3.select("#tooltip");
+
+            let allDots = [];
+
+            factors.forEach(factor => {
+                const filteredData = data.filter(d => d.voteShare && d[factor] !== null);
+                if (filteredData.length === 0) return;
+
+                const svg = container.append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", -10)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "16px")
+                    .text(`${factor} vs Vote Share`);
+
+                const x = d3.scaleLinear()
+                    .domain(d3.extent(filteredData, d => d.voteShare))
+                    .range([0, width]);
+
+                const y = d3.scaleLinear()
+                    .domain(d3.extent(filteredData, d => d[factor]))
+                    .nice()
+                    .range([height, 0]);
+
+                svg.append("g")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(x));
+                
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height + margin.bottom - 10)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .text("Vote Share (%)");
+                
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("x", -height / 2)
+                    .attr("y", -margin.left + 15)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .text(`${factor} (%)`);
+
+                const dots = svg.selectAll(".dot")
+                    .data(filteredData)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("cx", d => x(d.voteShare))
+                    .attr("cy", d => y(d[factor]))
+                    .attr("r", 5)
+                    .style("fill", factorColors[factor])
+                    .on("mouseover", (event, d) => {
+                        tooltip.style("opacity", 1)
+                               .html(`Year: ${d.year}<br>Vote Share: ${d.voteShare.toFixed(2)}%<br>${factor}: ${d[factor].toFixed(2)}%`)
+                               .style("left", (event.pageX + 10) + "px")
+                               .style("top", (event.pageY - 10) + "px");
+                    })
+                    .on("mouseout", () => tooltip.style("opacity", 0));
+
+                allDots.push(dots);
+
+            });
+
+            const mlFactors = ["Inflation", "GDPGrowth", "Unemployment", "voteShare"];
+            const mlWidth = 1220, mlHeight = 400, mlMargin = { top: 40, right: 80, bottom: 50, left: 60 };
+
+            // First, determine the exact range of years in the data that have valid values
+            const validYears = [];
+            data.forEach(d => {
+            // Only include years where at least one factor has a valid value
+            let hasValidValue = false;
+            mlFactors.forEach(factor => {
+                if (d[factor] !== null && d[factor] !== undefined) {
+                hasValidValue = true;
+                }
+            });
+            if (hasValidValue) validYears.push(d.year);
+            });
+
+            // Get precise min/max from valid years only
+            const yearExtent = validYears.length > 0 ? [Math.min(...validYears), Math.max(...validYears)] : [0, 0];
+
+            // Find the min and max values for each factor separately
+            const normalizedData = data.map(d => {
+            const normalized = { year: d.year };
+            
+            // Normalize each factor individually
+            mlFactors.forEach(factor => {
+                // Find min and max for this specific factor
+                const factorValues = data.map(item => item[factor]).filter(val => val !== null && val !== undefined);
+                const minValue = d3.min(factorValues);
+                const maxValue = d3.max(factorValues);
+                
+                // Only normalize if we have valid min/max
+                if (minValue !== undefined && maxValue !== undefined && minValue !== maxValue) {
+                normalized[factor] = (d[factor] - minValue) / (maxValue - minValue);
+                } else {
+                // Handle edge case where min equals max
+                normalized[factor] = d[factor] !== null ? 0.5 : null;
+                }
+            });
+            
+            return normalized;
+            });
+
+            // Clear any existing chart
+            d3.select("#multi-line-chart").html("");
+
+            const lineSvg = d3.select("#multi-line-chart").append("svg")
+                .attr("width", mlWidth + mlMargin.left + mlMargin.right)
+                .attr("height", mlHeight + mlMargin.top + mlMargin.bottom)
+                .append("g")
+                .attr("transform", `translate(${mlMargin.left},${mlMargin.top})`);
+
+            // Create a clip path that exactly matches the plot area
+            lineSvg.append("defs").append("clipPath")
+                .attr("id", "plot-area")
+                .append("rect")
+                .attr("width", mlWidth - 50)
+                .attr("height", mlHeight)
+                .attr("x", 0)
+                .attr("y", 0);
+
+            // Chart title
+            lineSvg.append("text")
+                .attr("x", mlWidth / 2)
+                .attr("y", -15)
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .text("Economic Factors Over Time (Normalized)");
+
+            // X-axis label
+            lineSvg.append("text")
+                .attr("x", mlWidth / 2)
+                .attr("y", mlHeight + 40)
+                .attr("text-anchor", "middle")
+                .style("font-size", "14px")
+                .text("Year");
+
+            // Y-axis label
+            lineSvg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -mlHeight / 2)
+                .attr("y", -45)
+                .attr("text-anchor", "middle")
+                .style("font-size", "14px")
+                .text("Normalized Value (0-1)");
+
+            // Define the filter checkboxes above the chart
+            const filterContainer = d3.select("#multi-line-chart")
+            .insert("div", ":first-child")
+            .attr("class", "filter-container")
+            .style("display", "flex")
+            .style("gap", "15px")
+            .style("justify-content", "center");
+
+            // Create label and checkbox for each economic factor (excluding voteShare)
+            const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
+            econFactors.forEach(factor => {
+            const filterItem = filterContainer.append("label")
+                .style("display", "inline-flex")
+                .style("align-items", "center")
+                .style("gap", "5px")
+                .style("cursor", "pointer");
+            
+            filterItem.append("input")
+                .attr("type", "checkbox")
+                .attr("id", `filter-${factor}`)
+                .attr("value", factor)
+                .attr("checked", true) // Initially all factors are shown
+                .on("change", updateChart);
+            
+            filterItem.append("span")
+                .text(factor)
+                .style("color", factorColors[factor]);
+            });
+
+            // Add some padding to the X domain to ensure proper display
+            const xPadding = (yearExtent[1] - yearExtent[0]) * 0.02; // 2% padding
+            const xDomain = [yearExtent[0] - xPadding, yearExtent[1] + xPadding];
+
+            // X-axis scale with padded domain
+            const mxScale = d3.scaleLinear()
+                .domain(xDomain)
+                .range([0, mlWidth - 50]);
+
+            // Y-axis scale for normalized data with slight padding
+            const myScale = d3.scaleLinear()
+                .domain([-0.01, 1.01])  // Slight padding to keep points away from edges
+                .range([mlHeight, 0]);
+
+            // Add X-axis
+            lineSvg.append("g")
+                .attr("transform", `translate(0, ${mlHeight})`)
+                .call(d3.axisBottom(mxScale).ticks(5).tickFormat(d3.format("d")));
+
+            // Add Y-axis with decimal format
+            lineSvg.append("g")
+                .call(d3.axisLeft(myScale).tickFormat(d3.format(".1f")));
+
+            // Create a container for all lines that will respect the clip path
+            const linesContainer = lineSvg.append("g")
+                .attr("clip-path", "url(#plot-area)");
+
+            // Line generator function with curve interpolation
+            const mline = d3.line()
+                .x(d => mxScale(d.year))
+                .y(d => myScale(d.value))
+                .defined(d => d.value !== null && d.value !== undefined);
+
+            // Add legend
+            const legend = lineSvg.append("g")
+                .attr("class", "legend")
+                .attr("transform", `translate(${mlWidth - 30}, 10)`);
+
+            // Function to update the chart based on which factors are selected
+            function updateChart() {
+                // Clear existing lines and legend
+                linesContainer.selectAll("path").remove();
+                legend.selectAll("*").remove();
+                
+                // Get selected factors
+                const selectedFactors = econFactors
+                    .filter(factor => d3.select(`#filter-${factor}`).property("checked"));
+                
+                // Always include voteShare
+                const displayFactors = [...selectedFactors , "voteShare"];
+                
+                // Add legend items and lines for selected factors and voteShare
+                let legendIndex = 0;
+                
+                displayFactors.forEach((factor) => {
+                    // Create individual datasets for each factor
+                    const lineData = normalizedData
+                    .filter(d => d[factor] !== null && d[factor] !== undefined)
+                    .map(d => ({ 
+                        year: d.year, 
+                        value: d[factor] 
+                    }));
+                    
+                    // Draw line only if we have valid data points
+                    if (lineData.length > 0) {
+                    // Add line to chart
+                    const linePath = linesContainer.append("path")
+                        .datum(lineData)
+                        .attr("class", "line")
+                        .attr("d", mline)
+                        .attr("stroke", factorColors[factor])
+                        .attr("stroke-width", factor === "voteShare" ? 3.5 : 2.5) // Make voteShare line slightly thicker
+                        .attr("fill", "none");
+                    
+                    // Add legend item
+                    legend.append("rect")
+                        .attr("x", 0)
+                        .attr("y", legendIndex * 25)
+                        .attr("width", 15)
+                        .attr("height", 15)
+                        .attr("fill", factorColors[factor]);
+                    
+                    legend.append("text")
+                        .attr("x", 20)
+                        .attr("y", legendIndex * 25 + 12)
+                        .text(factor)
+                        .style("font-size", "12px")
+                        .style("font-weight", factor === "voteShare" ? "bold" : "normal"); // Highlight voteShare in legend
+                    
+                    legendIndex++;
+                    }
+                });
+            }
+
+            // Initialize chart with all factors selected
+            updateChart();
+
+            // Add border around the plot area for clarity
+            lineSvg.append("rect")
+                .attr("width", mlWidth - 50)
+                .attr("height", mlHeight)
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("fill", "none")
+                .attr("stroke", "#000")
+                .attr("stroke-width", 1);
+
+            yearSelect.on("change", function() {
+                const selectedYear = this.value;
+
+                // Check if a valid year is selected, if not, skip the effects
+                if (!selectedYear || selectedYear === "None") {
+                    // Reset all effects if no year is selected
+                    allDots.forEach(dots => {
+                        dots.classed("dimmed", false)
+                            .classed("selected", false);
+                    });
+
+                    // Remove Vertical Line from Multi-Line Chart
+                    lineSvg.selectAll(".vertical-line").remove();
+                } else {
+                    // Update dots based on selected year
+                    allDots.forEach(dots => {
+                        dots.classed("dimmed", d => d.year !== selectedYear)
+                            .classed("selected", d => d.year === selectedYear);
+                    });
+
+                    // Add or update Vertical Line to Multi-Line Chart at the selected year
+                    lineSvg.selectAll(".vertical-line").remove();
+                    lineSvg.append("line")
+                        .attr("class", "vertical-line")
+                        .attr("x1", mxScale(selectedYear))   // Ensure mxScale maps the year to x-axis correctly
+                        .attr("x2", mxScale(selectedYear))
+                        .attr("y1", 0)
+                        .attr("y2", 400);  // Update the y-values as needed based on your chart's height
+                }
+
+            });
+
+        });
+    </script>
+</body>
+</html>
