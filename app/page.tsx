@@ -39,7 +39,7 @@ const visualizations = [
     id: "5",
     title: "Economic Factors",
     description: "",
-    url: "/d3-dashboard/index.html", // Path to your HTML file in the public directory
+    url: "../public/d3-dashboard/d3-dashboard.html", // Path to your HTML file in the public directory
     type: "d3",
   },
 ]
