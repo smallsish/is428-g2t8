@@ -9,32 +9,32 @@ import { TableauViz } from "@/components/tableau-viz"
 const visualizations = [
   {
     id: "1",
-    title: "Dashboard 1",
-    description: "First Tableau visualization",
+    title: "Overview",
+    description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1",
   },
   {
     id: "2",
-    title: "Dashboard 2",
-    description: "Second Tableau visualization",
+    title: "Age",
+    description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
   },
   {
     id: "3",
-    title: "Dashboard 3",
-    description: "Third Tableau visualization",
+    title: "Type of Dwelling",
+    description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
   },
   {
     id: "4",
-    title: "Dashboard 4",
-    description: "Fourth Tableau visualization",
+    title: "Race",
+    description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
   },
   {
     id: "5",
-    title: "Dashboard 5",
-    description: "Fifth Tableau visualization",
+    title: "Economic Factors",
+    description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
   },
 ]

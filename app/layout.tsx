@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Tableau Dashboard",
+  title: "IS428 G2T8 Dashboard",
   description: "Interactive dashboard with Tableau visualizations",
 }
 
