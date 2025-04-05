@@ -12,35 +12,59 @@ const visualizations = [
     title: "Overview",
     description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1",
+    type: "tableau",
   },
   {
     id: "2",
     title: "Age",
     description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    type: "tableau",
   },
   {
     id: "3",
     title: "Type of Dwelling",
     description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    type: "tableau",
   },
   {
     id: "4",
     title: "Race",
     description: "",
     url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    type: "tableau",
   },
   {
     id: "5",
     title: "Economic Factors",
     description: "",
-    url: "/d3-dashboard/index.html", // Replace with actual URL
+    url: "/d3-dashboard/index.html", // Path to your HTML file in the public directory
+    type: "d3",
   },
 ]
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("tab1")
+
+  // Function to render the appropriate visualization based on type
+  const renderVisualization = (viz: (typeof visualizations)[0], index: number) => {
+    if (!activeTab.includes(`${index + 1}`)) return null
+
+    if (viz.type === "d3") {
+      return (
+        <iframe
+          src={viz.url}
+          className="w-full border-none"
+          style={{ height: "827px" }}
+          title="Economic Factors"
+          sandbox="allow-same-origin allow-scripts"
+        />
+      )
+    } else {
+      return <TableauViz id={`${viz.id}_${index}`} url={viz.url} height="827px" width="100%" />
+    }
+  }
 
   return (
     <main className="container mx-auto py-10 px-4">
@@ -62,11 +86,7 @@ export default function Home() {
                 <CardTitle>{viz.title}</CardTitle>
                 <CardDescription>{viz.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                {activeTab === `tab${index + 1}` && (
-                  <TableauViz id={`${viz.id}_${index}`} url={viz.url} height="827px" width="100%" />
-                )}
-              </CardContent>
+              <CardContent>{renderVisualization(viz, index)}</CardContent>
             </Card>
           </TabsContent>
         ))}
