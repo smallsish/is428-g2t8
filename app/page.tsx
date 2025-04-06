@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader} from "@/components/ui/card"
 import { TableauViz } from "@/components/tableau-viz"
 
 const visualizations = [
@@ -81,7 +81,6 @@ export default function Home() {
           <TabsContent key={`tab${index + 1}`} value={`tab${index + 1}`} className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>{viz.title}</CardTitle>
                 <CardDescription>{viz.description}</CardDescription>
               </CardHeader>
               <CardContent>{renderVisualization(viz, index)}</CardContent>
