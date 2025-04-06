@@ -11,6 +11,12 @@
             flex-wrap: wrap;
             justify-content: space-around;
         }
+        .chart-container#charts {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 20px;
+        }
         svg {
             border: 1px solid black;
             margin: 10px;
@@ -85,9 +91,9 @@
                 "Inflation": "purple",
                 "GDPGrowth": "orange",
                 "Unemployment": "green",
-                "voteShare": "black"
+                "voteShare": "#e05659"
             };
-            const width = 400, height = 300, margin = { top: 40, right: 5, bottom: 50, left: 5 };
+            const width = 400, height = 300, margin = { top: 40, right: 20, bottom: 50, left: 20 };
             const container = d3.select("#charts");
             const tooltip = d3.select("#tooltip");
 
@@ -248,12 +254,23 @@
                 .text("Normalized Value (0-1)");
 
             // Define the filter checkboxes above the chart
-            const filterContainer = d3.select("#multi-line-chart")
-            .insert("div", ":first-child")
-            .attr("class", "filter-container")
-            .style("display", "flex")
-            .style("gap", "15px")
-            .style("justify-content", "center");
+            // const filterContainer = d3.select("#multi-line-chart")
+            // .insert("div", ":first-child")
+            // .attr("class", "filter-container")
+            // .style("display", "flex")
+            // .style("gap", "15px")
+            // .style("justify-content", "center");
+
+            const filterContainer = lineSvg.append("foreignObject")
+                .attr("x", 0)
+                .attr("y", 10)
+                .attr("width", mlWidth)
+                .attr("height", 40)
+                .append("xhtml:div")
+                .attr("class", "filter-container")
+                .style("display", "flex")
+                .style("gap", "15px")
+                .style("justify-content", "center");
 
             // Create label and checkbox for each economic factor (excluding voteShare)
             const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
