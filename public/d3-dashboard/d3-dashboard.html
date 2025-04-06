@@ -53,33 +53,6 @@
         .vertical-line { stroke: grey; stroke-width: 2px; stroke-dasharray: 4 2; }
         .selected { r: 8; stroke: black; stroke-width: 2px; }
         .highlight-line { stroke: red; stroke-width: 3px; }
-
-        #multi-line-container {
-            display: flex;
-            justify-content: center;
-        }
-
-        #chart-wrapper {
-            display: flex;
-            align-items: flex-start;
-        }
-
-        #multi-line-chart {
-            flex: 1;
-        }
-
-        #chart-filters {
-            margin-left: 20px;
-            margin-top: 50px; /* Pushes filters downward so they're below the legend */
-            display: flex;
-            flex-direction: column;
-        }
-
-        #chart-filters label {
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
     </style>
 </head>
 <body>
@@ -91,20 +64,10 @@
     <div class="chart-container">
         <!-- <div id="slope-chart"></div> -->
         <!-- <div id="multi-line-chart"></div> -->
-        <div id="multi-line-container">
-            <div id="chart-wrapper">
-              <!-- D3 appends the SVG chart here -->
-              <div id="multi-line-chart"></div>
-          
-              <!-- Filters positioned beside the chart -->
-              <div id="chart-filters">
-                <label><input type="checkbox" checked value="Inflation" /> Inflation</label>
-                <label><input type="checkbox" checked value="GDPGrowth" /> GDP Growth</label>
-                <label><input type="checkbox" checked value="Unemployment" /> Unemployment</label>
-              </div>
-            </div>
-          </div>
-          
+        <div id="multi-line-container" style="text-align: center;">
+            <div id="chart-filters" style="margin-bottom: 10px;"></div>
+            <div id="multi-line-chart"></div>
+        </div>
     </div>
     <script>
         d3.csv("voteshare_allthree.csv").then(function(data) {
