@@ -65,7 +65,7 @@
         <!-- <div id="slope-chart"></div> -->
         <!-- <div id="multi-line-chart"></div> -->
         <div id="multi-line-container" style="text-align: center;">
-            <div id="chart-filters" style="margin-bottom: 10px;"></div>
+            <!-- <div id="chart-filters" style="margin-bottom: 10px;"></div> -->
             <div id="multi-line-chart"></div>
         </div>
     </div>
@@ -265,57 +265,57 @@
             // .style("gap", "15px")
             // .style("justify-content", "center");
 
-            // const filterContainer = lineSvg.append("foreignObject")
-            //     .attr("x", 0)
-            //     .attr("y", 10)
-            //     .attr("width", mlWidth)
-            //     .attr("height", 40)
-            //     .append("xhtml:div")
-            //     .attr("class", "filter-container")
-            //     .style("display", "flex")
-            //     .style("gap", "15px")
-            //     .style("justify-content", "center");
+            const filterContainer = lineSvg.append("foreignObject")
+                .attr("x", 0)
+                .attr("y", 10)
+                .attr("width", mlWidth)
+                .attr("height", 40)
+                .append("xhtml:div")
+                .attr("class", "filter-container")
+                .style("display", "flex")
+                .style("gap", "15px")
+                .style("justify-content", "center");
 
-            // Render checkboxes in HTML div outside SVG
-            const filterContainer = d3.select("#chart-filters");
+            // // Render checkboxes in HTML div outside SVG
+            // const filterContainer = d3.select("#chart-filters");
 
-            filterContainer.selectAll("label")
-                .data(["Inflation", "GDPGrowth", "Unemployment"])
-                .enter()
-                .append("label")
-                .style("margin-right", "15px")
-                .style("font-weight", "bold")
-                .style("color", d => factorColors[d])
-                .html(d => `
-                    <input type="checkbox" id="filter-${d}" value="${d}" checked style="margin-right: 5px;">
-                    ${d}
-                `)
-                .on("change", updateChart);
-
-            // Attach change event manually
-            filterContainer.selectAll("input").on("change", updateChart);
-
-
-            // // Create label and checkbox for each economic factor (excluding voteShare)
-            // const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
-            // econFactors.forEach(factor => {
-            // const filterItem = filterContainer.append("label")
-            //     .style("display", "inline-flex")
-            //     .style("align-items", "center")
-            //     .style("gap", "5px")
-            //     .style("cursor", "pointer");
-            
-            // filterItem.append("input")
-            //     .attr("type", "checkbox")
-            //     .attr("id", `filter-${factor}`)
-            //     .attr("value", factor)
-            //     .attr("checked", true) // Initially all factors are shown
+            // filterContainer.selectAll("label")
+            //     .data(["Inflation", "GDPGrowth", "Unemployment"])
+            //     .enter()
+            //     .append("label")
+            //     .style("margin-right", "15px")
+            //     .style("font-weight", "bold")
+            //     .style("color", d => factorColors[d])
+            //     .html(d => `
+            //         <input type="checkbox" id="filter-${d}" value="${d}" checked style="margin-right: 5px;">
+            //         ${d}
+            //     `)
             //     .on("change", updateChart);
+
+            // // Attach change event manually
+            // filterContainer.selectAll("input").on("change", updateChart);
+
+
+            // Create label and checkbox for each economic factor (excluding voteShare)
+            const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
+            econFactors.forEach(factor => {
+            const filterItem = filterContainer.append("label")
+                .style("display", "inline-flex")
+                .style("align-items", "center")
+                .style("gap", "5px")
+                .style("cursor", "pointer");
             
-            // filterItem.append("span")
-            //     .text(factor)
-            //     .style("color", factorColors[factor]);
-            // });
+            filterItem.append("input")
+                .attr("type", "checkbox")
+                .attr("id", `filter-${factor}`)
+                .attr("value", factor)
+                .attr("checked", true) // Initially all factors are shown
+                .on("change", updateChart);
+            
+            filterItem.append("span")
+                .text(factor)
+                .style("color", factorColors[factor]);
+            });
 
             // Add some padding to the X domain to ensure proper display
             const xPadding = (yearExtent[1] - yearExtent[0]) * 0.02; // 2% padding
