@@ -11,21 +11,21 @@ const visualizations = [
     id: "1",
     title: "Overview",
     description: "",
-    url: "AssignmentSubmission_17438674912860/Dashboard1",
+    url: "Project_Overview/OverviewDashboard",
     type: "tableau",
   },
   {
     id: "2",
     title: "Age",
     description: "",
-    url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    url: "GrpProjAgeDashboard/AGEDashboard", // Replace with actual URL
     type: "tableau",
   },
   {
     id: "3",
     title: "Type of Dwelling",
     description: "",
-    url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    url: "Project_Dwellings/DashboardNew", // Replace with actual URL
     type: "tableau",
   },
   {
