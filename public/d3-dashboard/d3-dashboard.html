@@ -15,7 +15,7 @@
             display: flex;
             flex-wrap: nowrap;
             justify-content: center;
-            gap: 10px;
+            gap: 5px;
         }
         svg {
             border: 1px solid black;
@@ -53,6 +53,33 @@
         .vertical-line { stroke: grey; stroke-width: 2px; stroke-dasharray: 4 2; }
         .selected { r: 8; stroke: black; stroke-width: 2px; }
         .highlight-line { stroke: red; stroke-width: 3px; }
+
+        #multi-line-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        #chart-wrapper {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        #multi-line-chart {
+            flex: 1;
+        }
+
+        #chart-filters {
+            margin-left: 20px;
+            margin-top: 50px; /* Pushes filters downward so they're below the legend */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chart-filters label {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -64,11 +91,20 @@
     <div class="chart-container">
         <!-- <div id="slope-chart"></div> -->
         <!-- <div id="multi-line-chart"></div> -->
-        <div id="multi-line-container" style="text-align: center;">
-            <h2>Economic Factors Over Time (Normalized)</h2>
-            <div id="chart-filters" style="margin-bottom: 10px;"></div>
-            <div id="multi-line-chart"></div>
-        </div>
+        <div id="multi-line-container">
+            <div id="chart-wrapper">
+              <!-- D3 appends the SVG chart here -->
+              <div id="multi-line-chart"></div>
+          
+              <!-- Filters positioned beside the chart -->
+              <div id="chart-filters">
+                <label><input type="checkbox" checked value="Inflation" /> Inflation</label>
+                <label><input type="checkbox" checked value="GDPGrowth" /> GDP Growth</label>
+                <label><input type="checkbox" checked value="Unemployment" /> Unemployment</label>
+              </div>
+            </div>
+          </div>
+          
     </div>
     <script>
         d3.csv("voteshare_allthree.csv").then(function(data) {
@@ -173,7 +209,7 @@
             });
 
             const mlFactors = ["Inflation", "GDPGrowth", "Unemployment", "voteShare"];
-            const mlWidth = 1000, mlHeight = 400, mlMargin = { top: 40, right: 50, bottom: 50, left: 50 };
+            const mlWidth = 1100, mlHeight = 400, mlMargin = { top: 40, right: 70, bottom: 50, left: 70 };
 
             // First, determine the exact range of years in the data that have valid values
             const validYears = [];
@@ -297,26 +333,26 @@
             filterContainer.selectAll("input").on("change", updateChart);
 
 
-            // Create label and checkbox for each economic factor (excluding voteShare)
-            const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
-            econFactors.forEach(factor => {
-            const filterItem = filterContainer.append("label")
-                .style("display", "inline-flex")
-                .style("align-items", "center")
-                .style("gap", "5px")
-                .style("cursor", "pointer");
+            // // Create label and checkbox for each economic factor (excluding voteShare)
+            // const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
+            // econFactors.forEach(factor => {
+            // const filterItem = filterContainer.append("label")
+            //     .style("display", "inline-flex")
+            //     .style("align-items", "center")
+            //     .style("gap", "5px")
+            //     .style("cursor", "pointer");
             
-            filterItem.append("input")
-                .attr("type", "checkbox")
-                .attr("id", `filter-${factor}`)
-                .attr("value", factor)
-                .attr("checked", true) // Initially all factors are shown
-                .on("change", updateChart);
+            // filterItem.append("input")
+            //     .attr("type", "checkbox")
+            //     .attr("id", `filter-${factor}`)
+            //     .attr("value", factor)
+            //     .attr("checked", true) // Initially all factors are shown
+            //     .on("change", updateChart);
             
-            filterItem.append("span")
-                .text(factor)
-                .style("color", factorColors[factor]);
-            });
+            // filterItem.append("span")
+            //     .text(factor)
+            //     .style("color", factorColors[factor]);
+            // });
 
             // Add some padding to the X domain to ensure proper display
             const xPadding = (yearExtent[1] - yearExtent[0]) * 0.02; // 2% padding
