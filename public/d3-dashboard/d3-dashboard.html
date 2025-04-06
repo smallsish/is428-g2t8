@@ -15,7 +15,7 @@
             display: flex;
             flex-wrap: nowrap;
             justify-content: center;
-            gap: 20px;
+            gap: 10px;
         }
         svg {
             border: 1px solid black;
@@ -63,7 +63,12 @@
     <div class="tooltip" id="tooltip"></div>
     <div class="chart-container">
         <!-- <div id="slope-chart"></div> -->
-        <div id="multi-line-chart"></div>
+        <!-- <div id="multi-line-chart"></div> -->
+        <div id="multi-line-container" style="text-align: center;">
+            <h2>Economic Factors Over Time (Normalized)</h2>
+            <div id="chart-filters" style="margin-bottom: 10px;"></div>
+            <div id="multi-line-chart"></div>
+        </div>
     </div>
     <script>
         d3.csv("voteshare_allthree.csv").then(function(data) {
@@ -93,7 +98,7 @@
                 "Unemployment": "green",
                 "voteShare": "#e05659"
             };
-            const width = 400, height = 300, margin = { top: 40, right: 20, bottom: 50, left: 20 };
+            const width = 400, height = 300, margin = { top: 40, right: 50, bottom: 50, left: 50 };
             const container = d3.select("#charts");
             const tooltip = d3.select("#tooltip");
 
@@ -168,7 +173,7 @@
             });
 
             const mlFactors = ["Inflation", "GDPGrowth", "Unemployment", "voteShare"];
-            const mlWidth = 1000, mlHeight = 400, mlMargin = { top: 40, right: 10, bottom: 50, left: 10 };
+            const mlWidth = 1000, mlHeight = 400, mlMargin = { top: 40, right: 50, bottom: 50, left: 50 };
 
             // First, determine the exact range of years in the data that have valid values
             const validYears = [];
@@ -261,16 +266,36 @@
             // .style("gap", "15px")
             // .style("justify-content", "center");
 
-            const filterContainer = lineSvg.append("foreignObject")
-                .attr("x", 0)
-                .attr("y", 10)
-                .attr("width", mlWidth)
-                .attr("height", 40)
-                .append("xhtml:div")
-                .attr("class", "filter-container")
-                .style("display", "flex")
-                .style("gap", "15px")
-                .style("justify-content", "center");
+            // const filterContainer = lineSvg.append("foreignObject")
+            //     .attr("x", 0)
+            //     .attr("y", 10)
+            //     .attr("width", mlWidth)
+            //     .attr("height", 40)
+            //     .append("xhtml:div")
+            //     .attr("class", "filter-container")
+            //     .style("display", "flex")
+            //     .style("gap", "15px")
+            //     .style("justify-content", "center");
+
+            // Render checkboxes in HTML div outside SVG
+            const filterContainer = d3.select("#chart-filters");
+
+            filterContainer.selectAll("label")
+                .data(["Inflation", "GDPGrowth", "Unemployment"])
+                .enter()
+                .append("label")
+                .style("margin-right", "15px")
+                .style("font-weight", "bold")
+                .style("color", d => factorColors[d])
+                .html(d => `
+                    <input type="checkbox" id="filter-${d}" value="${d}" checked style="margin-right: 5px;">
+                    ${d}
+                `)
+                .on("change", updateChart);
+
+            // Attach change event manually
+            filterContainer.selectAll("input").on("change", updateChart);
+
 
             // Create label and checkbox for each economic factor (excluding voteShare)
             const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
