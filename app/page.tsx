@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TableauViz } from "@/components/tableau-viz"
 
-// Sample visualizations - replace with your actual Tableau visualization URLs
 const visualizations = [
   {
     id: "1",
@@ -18,28 +17,28 @@ const visualizations = [
     id: "2",
     title: "Age",
     description: "",
-    url: "GrpProjAgeDashboard/AGEDashboard", // Replace with actual URL
+    url: "GrpProjAgeDashboard/AGEDashboard",
     type: "tableau",
   },
   {
     id: "3",
     title: "Type of Dwelling",
     description: "",
-    url: "Project_Dwellings/DashboardNew", // Replace with actual URL
+    url: "Project_Dwellings/DashboardNew",
     type: "tableau",
   },
   {
     id: "4",
     title: "Race",
     description: "",
-    url: "AssignmentSubmission_17438674912860/Dashboard1", // Replace with actual URL
+    url: "RaceDashboardFinal/RaceDashboard",
     type: "tableau",
   },
   {
     id: "5",
     title: "Economic Factors",
     description: "",
-    url: "/d3-dashboard/d3-dashboard.html", // Path to your HTML file in the public directory
+    url: "/d3-dashboard/d3-dashboard.html",
     type: "d3",
   },
 ]
@@ -47,7 +46,6 @@ const visualizations = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState("tab1")
 
-  // Function to render the appropriate visualization based on type
   const renderVisualization = (viz: (typeof visualizations)[0], index: number) => {
     if (!activeTab.includes(`${index + 1}`)) return null
 
