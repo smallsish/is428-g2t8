@@ -581,7 +581,7 @@
                             // Show tooltip on hover with original value
                             d3.select("#tooltip")
                                 .style("opacity", 1)
-                                .html(`Year: ${d.year}<br>${factor}: ${originalValue !== null ? originalValue.toFixed(2) : "N/A"}${factor === "PAPVoteShare" ? "%" : ""}`)
+                                .html(`Year: ${d.year}<br>${factor}: ${originalValue !== null ? originalValue.toFixed(2) + "%" : "N/A"}${factor === "PAPVoteShare" ? "%" : ""}`)
                                 .style("left", (event.pageX + 10) + "px")
                                 .style("top", (event.pageY - 10) + "px");
                         })
