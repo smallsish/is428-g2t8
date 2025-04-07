@@ -54,7 +54,7 @@ export default function Home() {
         <iframe
           src={viz.url}
           className="w-full border-none"
-          style={{ height: "1000px" }}
+          style={{ height: "1050px" }}
           title="Economic Factors"
           sandbox="allow-same-origin allow-scripts"
         />
