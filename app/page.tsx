@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     <main className="container mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">Mapping the Impact of Demographics and Economics on Election Outcomes</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">How Do Demographics and Economic Factors Shape Singapore's Electoral Outcomes?</h1>
 
       <Tabs defaultValue="tab1" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-5 w-full mb-8">
