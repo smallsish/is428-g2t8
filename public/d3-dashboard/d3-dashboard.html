@@ -57,12 +57,13 @@
         .text-label {
             font-family: 'Benton Sans', sans-serif;
             font-size: 24px;
-            font-weight: 300;
+            font-weight: 200;
             fill: #000000;
             text-align: left; /* left-aligned */
         }
         body {
             font-family: 'Benton Sans', sans-serif;
+            font-weight: 200;
         }
         .highlight { stroke: red; stroke-width: 2px; }
         .dimmed { opacity: 0.3; }
@@ -137,12 +138,28 @@
                     .style("font-weight", "bold")
                     .text(`${factor} vs Vote Share`);
 
+                // const x = d3.scaleLinear()
+                //     .domain(d3.extent(filteredData, d => d.voteShare))
+                //     .range([0, width]);
+
+                // const y = d3.scaleLinear()
+                //     .domain(d3.extent(filteredData, d => d[factor]))
+                //     .nice()
+                //     .range([height, 0]);
+
+                const xExtent = d3.extent(filteredData, d => d.voteShare);
+                const yExtent = d3.extent(filteredData, d => d[factor]);
+
+                // Add padding to keep points off the axes
+                const xPadding = (xExtent[1] - xExtent[0]) * 0.05; // 5% padding
+                const yPadding = (yExtent[1] - yExtent[0]) * 0.05; // 5% padding
+
                 const x = d3.scaleLinear()
-                    .domain(d3.extent(filteredData, d => d.voteShare))
+                    .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
                     .range([0, width]);
 
                 const y = d3.scaleLinear()
-                    .domain(d3.extent(filteredData, d => d[factor]))
+                    .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
                     .nice()
                     .range([height, 0]);
 
@@ -167,6 +184,40 @@
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
                     .text(`${factor} (%)`);
+
+                // Create trend line only for Inflation plot
+                if (factor === "Inflation") {
+                    // Calculate the linear regression
+                    const xValues = filteredData.map(d => d.voteShare);
+                    const yValues = filteredData.map(d => d[factor]);
+                    
+                    // Simple linear regression
+                    const n = filteredData.length;
+                    const xMean = xValues.reduce((a, b) => a + b, 0) / n;
+                    const yMean = yValues.reduce((a, b) => a + b, 0) / n;
+                    
+                    const numerator = xValues.map((x, i) => (x - xMean) * (yValues[i] - yMean))
+                                            .reduce((a, b) => a + b, 0);
+                    const denominator = xValues.map(x => Math.pow(x - xMean, 2))
+                                            .reduce((a, b) => a + b, 0);
+                    
+                    const slope = numerator / denominator;
+                    const intercept = yMean - (slope * xMean);
+                    
+                    // Create line function
+                    const line = d3.line()
+                        .x(d => x(d.voteShare))
+                        .y(d => y(slope * d.voteShare + intercept));
+                    
+                    // Add the trend line
+                    svg.append("path")
+                        .datum(filteredData)
+                        .attr("fill", "none")
+                        .attr("stroke", "grey")
+                        .attr("stroke-width", 1.5)
+                        .attr("stroke-dasharray", "5,5") // Optional: makes the line dashed
+                        .attr("d", line);
+                }
 
                 const dots = svg.selectAll(".dot")
                     .data(filteredData)
