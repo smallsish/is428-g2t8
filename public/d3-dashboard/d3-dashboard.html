@@ -120,7 +120,7 @@
 
         d3.csv("voteshare_allthree.csv").then(function(data) {
             data.forEach(d => {
-                d.voteShare = +d["voteShare"];
+                d.PAPVoteShare = +d["voteShare"];
                 d.Inflation = d["Total Inflation Rate Over Previous 2 Years (%)"] !== "" ? +d["Total Inflation Rate Over Previous 2 Years (%)"] : null;
                 d.GDPGrowth = d["Total GDP Growth Over Previous 2 Years (%)"] !== "" ? +d["Total GDP Growth Over Previous 2 Years (%)"] : null;
                 d.Unemployment = d["Total Unemployment Rate Over Previous 2 Years (%)"] !== "" ? +d["Total Unemployment Rate Over Previous 2 Years (%)"] : null;
@@ -143,7 +143,7 @@
                 "Inflation": "purple",
                 "GDPGrowth": "orange",
                 "Unemployment": "green",
-                "voteShare": "#e05659"
+                "PAPVoteShare": "#e05659"
             };
             const width = 250, height = 300, margin = { top: 40, right: 60, bottom: 50, left: 60 };
             const container = d3.select("#charts");
@@ -152,7 +152,7 @@
             let allDots = [];
 
             factors.forEach(factor => {
-                const filteredData = data.filter(d => d.voteShare && d[factor] !== null);
+                const filteredData = data.filter(d => d.PAPVoteShare && d[factor] !== null);
                 if (filteredData.length === 0) return;
 
                 const svg = container.append("svg")
@@ -167,10 +167,10 @@
                     .attr("text-anchor", "middle")
                     .style("font-size", "16px")
                     .style("font-weight", "normal")
-                    .text(`${factor} vs Vote Share`);
+                    .text(`${factor} vs PAP Vote Share`);
 
                 // const x = d3.scaleLinear()
-                //     .domain(d3.extent(filteredData, d => d.voteShare))
+                //     .domain(d3.extent(filteredData, d => d.PAPVoteShare))
                 //     .range([0, width]);
 
                 // const y = d3.scaleLinear()
@@ -178,7 +178,7 @@
                 //     .nice()
                 //     .range([height, 0]);
 
-                const xExtent = d3.extent(filteredData, d => d.voteShare);
+                const xExtent = d3.extent(filteredData, d => d.PAPVoteShare);
                 const yExtent = d3.extent(filteredData, d => d[factor]);
 
                 // Add padding to keep points off the axes
@@ -206,7 +206,7 @@
                     .attr("y", height + margin.bottom - 10)
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
-                    .text("Vote Share (%)");
+                    .text("PAP Vote Share (%)");
                 
                 svg.append("text")
                     .attr("transform", "rotate(-90)")
@@ -216,7 +216,7 @@
                     .style("font-size", "12px")
                     .text(`${factor} (%)`);
 
-                const xValues = filteredData.map(d => d.voteShare);
+                const xValues = filteredData.map(d => d.PAPVoteShare);
                 const yValues = filteredData.map(d => d[factor]);
                 const r = calculateCorrelation(xValues, yValues);
                 const rSquared = Math.pow(r, 2).toFixed(3);
@@ -233,7 +233,7 @@
                 // Create trend line only for Inflation plot
                 if (factor === "Inflation") {
                     // Calculate the linear regression
-                    const xValues = filteredData.map(d => d.voteShare);
+                    const xValues = filteredData.map(d => d.PAPVoteShare);
                     const yValues = filteredData.map(d => d[factor]);
                     
                     // Simple linear regression
@@ -251,8 +251,8 @@
                     
                     // Create line function
                     const line = d3.line()
-                        .x(d => x(d.voteShare))
-                        .y(d => y(slope * d.voteShare + intercept));
+                        .x(d => x(d.PAPVoteShare))
+                        .y(d => y(slope * d.PAPVoteShare + intercept));
                     
                     // Add the trend line
                     svg.append("path")
@@ -268,13 +268,13 @@
                     .data(filteredData)
                     .enter().append("circle")
                     .attr("class", "dot")
-                    .attr("cx", d => x(d.voteShare))
+                    .attr("cx", d => x(d.PAPVoteShare))
                     .attr("cy", d => y(d[factor]))
                     .attr("r", 5)
                     .style("fill", factorColors[factor])
                     .on("mouseover", (event, d) => {
                         tooltip.style("opacity", 1)
-                               .html(`Year: ${d.year}<br>Vote Share: ${d.voteShare.toFixed(2)}%<br>${factor}: ${d[factor].toFixed(2)}%`)
+                               .html(`Year: ${d.year}<br>PAP Vote Share: ${d.PAPVoteShare.toFixed(2)}%<br>${factor}: ${d[factor].toFixed(2)}%`)
                                .style("left", (event.pageX + 10) + "px")
                                .style("top", (event.pageY - 10) + "px");
                     })
@@ -284,7 +284,7 @@
 
             });
 
-            const mlFactors = ["Inflation", "GDPGrowth", "Unemployment", "voteShare"];
+            const mlFactors = ["Inflation", "GDPGrowth", "Unemployment", "PAPVoteShare"];
             const mlWidth = 1000, mlHeight = 400, mlMargin = { top: 40, right: 70, bottom: 50, left: 70 };
 
             // First, determine the exact range of years in the data that have valid values
@@ -409,7 +409,7 @@
             // filterContainer.selectAll("input").on("change", updateChart);
 
 
-            // Create label and checkbox for each economic factor (excluding voteShare)
+            // Create label and checkbox for each economic factor (excluding PAPVoteShare)
             const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
             econFactors.forEach(factor => {
             const filterItem = filterContainer.append("label")
@@ -479,10 +479,10 @@
                 const selectedFactors = econFactors
                     .filter(factor => d3.select(`#filter-${factor}`).property("checked"));
                 
-                // Always include voteShare
-                const displayFactors = [...selectedFactors , "voteShare"];
+                // Always include PAPVoteShare
+                const displayFactors = [...selectedFactors , "PAPVoteShare"];
                 
-                // Add legend items and lines for selected factors and voteShare
+                // Add legend items and lines for selected factors and PAPVoteShare
                 let legendIndex = 0;
                 
                 displayFactors.forEach((factor) => {
@@ -502,7 +502,7 @@
                         .attr("class", "line")
                         .attr("d", mline)
                         .attr("stroke", factorColors[factor])
-                        .attr("stroke-width", factor === "voteShare" ? 3.5 : 2.5) // Make voteShare line slightly thicker
+                        .attr("stroke-width", factor === "PAPVoteShare" ? 3.5 : 2.5) // Make PAPVoteShare line slightly thicker
                         .attr("fill", "none");
 
                     // Add dots for each data point
@@ -543,7 +543,7 @@
                         .attr("y", legendIndex * 25 + 12)
                         .text(factor)
                         .style("font-size", "12px")
-                        .style("font-weight", "normal"); // Highlight voteShare in legend
+                        .style("font-weight", "normal"); // Highlight PAPVoteShare in legend
                     
                     legendIndex++;
                     }
