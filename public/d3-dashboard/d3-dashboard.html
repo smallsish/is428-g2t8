@@ -303,27 +303,54 @@
             // Get precise min/max from valid years only
             const yearExtent = validYears.length > 0 ? [Math.min(...validYears), Math.max(...validYears)] : [0, 0];
 
-            // Find the min and max values for each factor separately
-            const normalizedData = data.map(d => {
-            const normalized = { year: d.year };
+            // // Find the min and max values for each factor separately
+            // const normalizedData = data.map(d => {
+            // const normalized = { year: d.year };
             
-            // Normalize each factor individually
-            mlFactors.forEach(factor => {
-                // Find min and max for this specific factor
-                const factorValues = data.map(item => item[factor]).filter(val => val !== null && val !== undefined);
-                const minValue = d3.min(factorValues);
-                const maxValue = d3.max(factorValues);
+            // // Normalize each factor individually
+            // mlFactors.forEach(factor => {
+            //     // Find min and max for this specific factor
+            //     const factorValues = data.map(item => item[factor]).filter(val => val !== null && val !== undefined);
+            //     const minValue = d3.min(factorValues);
+            //     const maxValue = d3.max(factorValues);
                 
-                // Only normalize if we have valid min/max
-                if (minValue !== undefined && maxValue !== undefined && minValue !== maxValue) {
-                normalized[factor] = (d[factor] - minValue) / (maxValue - minValue);
-                } else {
-                // Handle edge case where min equals max
-                normalized[factor] = d[factor] !== null ? 0.5 : null;
-                }
-            });
+            //     // Only normalize if we have valid min/max
+            //     if (minValue !== undefined && maxValue !== undefined && minValue !== maxValue) {
+            //     normalized[factor] = (d[factor] - minValue) / (maxValue - minValue);
+            //     } else {
+            //     // Handle edge case where min equals max
+            //     normalized[factor] = d[factor] !== null ? 0.5 : null;
+            //     }
+            // });
             
-            return normalized;
+            // return normalized;
+            // });
+
+            // Modify the normalizedData creation to store original values
+            // normalizedData creation:
+            const normalizedData = data.map(d => {
+                const normalized = { year: d.year };
+                
+                // Store both normalized and original values
+                mlFactors.forEach(factor => {
+                    // Store original value
+                    normalized[`${factor}_original`] = d[factor];
+                    
+                    // Find min and max for this specific factor
+                    const factorValues = data.map(item => item[factor]).filter(val => val !== null && val !== undefined);
+                    const minValue = d3.min(factorValues);
+                    const maxValue = d3.max(factorValues);
+                    
+                    // Only normalize if we have valid min/max
+                    if (minValue !== undefined && maxValue !== undefined && minValue !== maxValue) {
+                        normalized[factor] = (d[factor] - minValue) / (maxValue - minValue);
+                    } else {
+                        // Handle edge case where min equals max
+                        normalized[factor] = d[factor] !== null ? 0.5 : null;
+                    }
+                });
+                
+                return normalized;
             });
 
             // Clear any existing chart
@@ -410,7 +437,8 @@
 
 
             // Create label and checkbox for each economic factor (excluding PAPVoteShare)
-            const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
+            // const econFactors = ["Inflation", "GDPGrowth", "Unemployment"];
+            const econFactors = ["Inflation", "GDPGrowth", "Unemployment", "PAPVoteShare"];
             econFactors.forEach(factor => {
             const filterItem = filterContainer.append("label")
                 .style("display", "inline-flex")
@@ -458,10 +486,17 @@
                 .attr("clip-path", "url(#plot-area)");
 
             // Line generator function with curve interpolation
+            // const mline = d3.line()
+            //     .x(d => mxScale(d.year))
+            //     .y(d => myScale(d.value))
+            //     .defined(d => d.value !== null && d.value !== undefined);
+            // Modify the line generator function to properly handle missing data
+            // Replace the existing line generator with this:
             const mline = d3.line()
                 .x(d => mxScale(d.year))
                 .y(d => myScale(d.value))
-                .defined(d => d.value !== null && d.value !== undefined);
+                .defined(d => d.value !== null && d.value !== undefined)
+                .curve(d3.curveLinear); // Use linear interpolation instead of default curve
 
             // Add legend
             const legend = lineSvg.append("g")
@@ -479,8 +514,10 @@
                 const selectedFactors = econFactors
                     .filter(factor => d3.select(`#filter-${factor}`).property("checked"));
                 
-                // Always include PAPVoteShare
-                const displayFactors = [...selectedFactors , "PAPVoteShare"];
+                // // Always include PAPVoteShare
+                // const displayFactors = [...selectedFactors , "PAPVoteShare"];
+
+                const displayFactors = selectedFactors;
                 
                 // Add legend items and lines for selected factors and PAPVoteShare
                 let legendIndex = 0;
@@ -517,11 +554,22 @@
                         .attr("fill", factorColors[factor])
                         .attr("stroke", "#fff")
                         .attr("stroke-width", 1)
+                        // .on("mouseover", function(event, d) {
+                        //     // Show tooltip on hover
+                        //     d3.select("#tooltip")
+                        //         .style("opacity", 1)
+                        //         .html(`Year: ${d.year}<br>${factor}: ${(d.value * 100).toFixed(1)}%`)
+                        //         .style("left", (event.pageX + 10) + "px")
+                        //         .style("top", (event.pageY - 10) + "px");
+                        // })
                         .on("mouseover", function(event, d) {
-                            // Show tooltip on hover
+                            // Get the original value from the data
+                            const originalValue = d[`${factor}_original`];
+                            
+                            // Show tooltip on hover with original value
                             d3.select("#tooltip")
                                 .style("opacity", 1)
-                                .html(`Year: ${d.year}<br>${factor}: ${(d.value * 100).toFixed(1)}%`)
+                                .html(`Year: ${d.year}<br>${factor}: ${originalValue !== null ? originalValue.toFixed(2) : "N/A"}${factor === "PAPVoteShare" ? "%" : ""}`)
                                 .style("left", (event.pageX + 10) + "px")
                                 .style("top", (event.pageY - 10) + "px");
                         })
