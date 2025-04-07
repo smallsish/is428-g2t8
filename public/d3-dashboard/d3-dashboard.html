@@ -87,6 +87,25 @@
         </div>
     </div>
     <script>
+
+        function calculateCorrelation(xValues, yValues) {
+            const n = xValues.length;
+            const xMean = xValues.reduce((a, b) => a + b, 0) / n;
+            const yMean = yValues.reduce((a, b) => a + b, 0) / n;
+            
+            const numerator = xValues.map((x, i) => (x - xMean) * (yValues[i] - yMean))
+                                .reduce((a, b) => a + b, 0);
+            
+            const xVariance = xValues.map(x => Math.pow(x - xMean, 2))
+                                .reduce((a, b) => a + b, 0);
+            
+            const yVariance = yValues.map(y => Math.pow(y - yMean, 2))
+                                .reduce((a, b) => a + b, 0);
+            
+            const r = numerator / Math.sqrt(xVariance * yVariance);
+            return r;
+        }
+
         d3.csv("voteshare_allthree.csv").then(function(data) {
             data.forEach(d => {
                 d.voteShare = +d["voteShare"];
@@ -184,6 +203,20 @@
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
                     .text(`${factor} (%)`);
+
+                const xValues = filteredData.map(d => d.voteShare);
+                const yValues = filteredData.map(d => d[factor]);
+                const r = calculateCorrelation(xValues, yValues);
+                const rSquared = Math.pow(r, 2).toFixed(3);
+
+                // Add correlation text to the chart
+                svg.append("text")
+                    .attr("x", width - 10)
+                    .attr("y", 10)
+                    .attr("text-anchor", "end")
+                    .style("font-size", "12px")
+                    .style("fill", "#555")
+                    .text(`r = ${r.toFixed(3)}, r² = ${rSquared}`);
 
                 // Create trend line only for Inflation plot
                 if (factor === "Inflation") {
