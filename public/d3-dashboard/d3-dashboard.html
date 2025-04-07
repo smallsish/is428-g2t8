@@ -166,7 +166,7 @@
                     .attr("y", -10)
                     .attr("text-anchor", "middle")
                     .style("font-size", "16px")
-                    .style("font-weight", "bold")
+                    .style("font-weight", "normal")
                     .text(`${factor} vs Vote Share`);
 
                 // const x = d3.scaleLinear()
@@ -350,7 +350,7 @@
                 .attr("y", -15)
                 .attr("text-anchor", "middle")
                 .style("font-size", "16px")
-                .style("font-weight", "bold")
+                .style("font-weight", "normal")
                 .text("Economic Factors Over Time (Normalized)");
 
             // X-axis label
@@ -543,7 +543,7 @@
                         .attr("y", legendIndex * 25 + 12)
                         .text(factor)
                         .style("font-size", "12px")
-                        .style("font-weight", factor === "voteShare" ? "bold" : "normal"); // Highlight voteShare in legend
+                        .style("font-weight", "normal"); // Highlight voteShare in legend
                     
                     legendIndex++;
                     }
