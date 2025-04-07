@@ -525,10 +525,10 @@
                 displayFactors.forEach((factor) => {
                     // Create individual datasets for each factor
                     const lineData = normalizedData
-                    .filter(d => d[factor] !== null && d[factor] !== undefined)
+                    .filter(d => d[`${factor}_original`] !== null && d[`${factor}_original`] !== undefined)
                     .map(d => ({ 
                         year: d.year, 
-                        value: d[factor] 
+                        value: d[`${factor}_original`] 
                     }));
                     
                     // Draw line only if we have valid data points
