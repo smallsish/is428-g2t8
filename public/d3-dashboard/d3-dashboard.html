@@ -513,7 +513,7 @@
                         .attr("class", d => `data-point dot-${factor}`)
                         .attr("cx", d => mxScale(d.year))
                         .attr("cy", d => myScale(d.value))
-                        .attr("r", factor === "voteShare" ? 5 : 4)
+                        .attr("r", 4)
                         .attr("fill", factorColors[factor])
                         .attr("stroke", "#fff")
                         .attr("stroke-width", 1)
